@@ -31,7 +31,7 @@ export default function AdminContact() {
 
   return (
     <form onSubmit={save}>
-      <AdminHeader title="Contact Information" subtitle="Phone, email, address, map and business hours." action={<SaveButton saving={saving} />} />
+      <AdminHeader title="Contact Information" subtitle="Phone, email, address and business hours." action={<SaveButton saving={saving} />} />
       <AdminCard>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Phone 1"><input value={data.phone1 ?? ''} onChange={(e) => setData({ ...data, phone1: e.target.value })} className="input" /></Field>
@@ -40,11 +40,6 @@ export default function AdminContact() {
           <Field label="Email"><input value={data.email ?? ''} onChange={(e) => setData({ ...data, email: e.target.value })} className="input" /></Field>
           <Field label="Address"><input value={data.address ?? ''} onChange={(e) => setData({ ...data, address: e.target.value })} className="input" /></Field>
           <Field label="Business Hours"><input value={data.business_hours ?? ''} onChange={(e) => setData({ ...data, business_hours: e.target.value })} className="input" /></Field>
-          <div className="sm:col-span-2">
-            <Field label="Google Maps Embed URL" hint="Paste the src URL from Google Maps embed code.">
-              <input value={data.map_url ?? ''} onChange={(e) => setData({ ...data, map_url: e.target.value })} className="input" />
-            </Field>
-          </div>
         </div>
       </AdminCard>
     </form>

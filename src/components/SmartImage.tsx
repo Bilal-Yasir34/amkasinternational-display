@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { responsiveSrcSet } from '@/lib/image';
 
 type SmartImageProps = {
@@ -18,10 +18,22 @@ export default function SmartImage({
   sizes,
   ratio,
 }: SmartImageProps) {
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
 
-  useEffect(() => setLoaded(false), [src]);
+  useEffect(() => {
+    setLoaded(false);
+    setErrored(false);
+
+    if (imgRef.current?.complete) {
+      if (imgRef.current.naturalWidth > 0) {
+        setLoaded(true);
+      } else {
+        setErrored(true);
+      }
+    }
+  }, [src]);
 
   const srcSet = responsiveSrcSet(src ?? '');
 
@@ -33,6 +45,12 @@ export default function SmartImage({
       {!loaded && !errored && <div className="absolute inset-0 skeleton" aria-hidden />}
       {src && !errored ? (
         <img
+          ref={(node) => {
+            imgRef.current = node;
+            if (node?.complete && node.naturalWidth > 0 && !loaded) {
+              setLoaded(true);
+            }
+          }}
           src={src}
           srcSet={srcSet}
           sizes={sizes ?? '100vw'}
@@ -41,14 +59,14 @@ export default function SmartImage({
           decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setErrored(true)}
-          className={`h-full w-full object-cover transition-opacity duration-700 ${
+          className={`h-full w-full object-cover transition-opacity duration-500 ${
             loaded ? 'opacity-100' : 'opacity-0'
           } ${className}`}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-ink-100 text-ink-300">
           {errored ? (
-            <span className="text-xs">Image unavailable</span>
+            <span className="text-xs text-ink-400">Image unavailable</span>
           ) : (
             <span className="h-6 w-6 animate-pulse rounded-full bg-ink-200" />
           )}
