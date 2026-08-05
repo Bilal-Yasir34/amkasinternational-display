@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X, Star, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Star, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { AdminHeader, EmptyState, Field, SaveButton } from '@/components/admin/AdminUI';
 import {
   fetchAllProductsAdmin,
@@ -123,6 +123,33 @@ export default function AdminProducts() {
       .catch((err) => toast((err as Error).message, 'error'));
   }
 
+  async function move(p: Product, dir: -1 | 1) {
+    const idx = products.findIndex((x) => x.id === p.id);
+    const targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= products.length) return;
+
+    const updated = [...products];
+    const temp = updated[idx];
+    updated[idx] = updated[targetIdx];
+    updated[targetIdx] = temp;
+
+    const reordered = updated.map((item, i) => ({
+      ...item,
+      sort_order: i,
+    }));
+
+    setProducts(reordered);
+
+    try {
+      await Promise.all(
+        reordered.map((item) => upsertProduct({ id: item.id, sort_order: item.sort_order })),
+      );
+      toast('Product order updated');
+    } catch (err) {
+      toast((err as Error).message, 'error');
+    }
+  }
+
   function setSpecField(key: string, value: string) {
     if (!editing) return;
     setEditing({
@@ -173,7 +200,7 @@ export default function AdminProducts() {
         <EmptyState message="No products yet. Click 'Add Product' to create your first." />
       ) : (
         <div className="card divide-y divide-ink-100 overflow-hidden">
-          {products.map((p) => {
+          {products.map((p, i) => {
             const categoryName = p.category?.name ?? categories.find((c) => c.id === p.category_id)?.name ?? 'Uncategorised';
             const collectionName = p.collection?.name ?? collections.find((c) => c.id === p.collection_id)?.name ?? 'No collection';
             return (
@@ -188,6 +215,12 @@ export default function AdminProducts() {
                     <span className="font-medium text-ink-700">{categoryName}</span> · <span className="font-medium text-ink-700">{collectionName}</span>
                   </p>
                 </div>
+                <button onClick={() => move(p, -1)} disabled={i === 0} className="btn-ghost h-9 w-9 p-0 disabled:opacity-30" aria-label="Move up">
+                  <ArrowUp className="h-4 w-4" />
+                </button>
+                <button onClick={() => move(p, 1)} disabled={i === products.length - 1} className="btn-ghost h-9 w-9 p-0 disabled:opacity-30" aria-label="Move down">
+                  <ArrowDown className="h-4 w-4" />
+                </button>
                 <button
                   onClick={() => toggleFeatured(p)}
                   className={`inline-flex h-9 w-9 items-center justify-center rounded-lg transition ${

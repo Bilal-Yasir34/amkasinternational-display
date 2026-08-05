@@ -75,18 +75,26 @@ export default function AdminCollections() {
 
   async function move(c: Collection, dir: -1 | 1) {
     const idx = collections.findIndex((x) => x.id === c.id);
-    const swap = collections[idx + dir];
-    if (!swap) return;
+    const targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= collections.length) return;
+
+    const updated = [...collections];
+    const temp = updated[idx];
+    updated[idx] = updated[targetIdx];
+    updated[targetIdx] = temp;
+
+    const reordered = updated.map((item, i) => ({
+      ...item,
+      sort_order: i,
+    }));
+
+    setCollections(reordered);
+
     try {
-      await Promise.all([
-        upsertCollection({ id: c.id, sort_order: swap.sort_order }),
-        upsertCollection({ id: swap.id, sort_order: c.sort_order }),
-      ]);
-      setCollections((prev) => prev.map((x) => {
-        if (x.id === c.id) return { ...x, sort_order: swap.sort_order };
-        if (x.id === swap.id) return { ...x, sort_order: c.sort_order };
-        return x;
-      }));
+      await Promise.all(
+        reordered.map((item) => upsertCollection({ id: item.id, sort_order: item.sort_order })),
+      );
+      toast('Collection order updated');
     } catch (err) {
       toast((err as Error).message, 'error');
     }

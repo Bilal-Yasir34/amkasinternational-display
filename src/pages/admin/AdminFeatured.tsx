@@ -30,20 +30,27 @@ export default function AdminFeatured() {
 
   async function move(p: Product, dir: -1 | 1) {
     const idx = featured.findIndex((x) => x.id === p.id);
-    const swap = featured[idx + dir];
-    if (!swap) return;
+    const targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= featured.length) return;
+
+    const updatedFeatured = [...featured];
+    const temp = updatedFeatured[idx];
+    updatedFeatured[idx] = updatedFeatured[targetIdx];
+    updatedFeatured[targetIdx] = temp;
+
+    const reordered = updatedFeatured.map((item, i) => ({
+      ...item,
+      featured_order: i,
+    }));
+
+    const reorderedMap = new Map(reordered.map((item) => [item.id, item]));
+    setProducts((prev) => prev.map((x) => reorderedMap.get(x.id) ?? x));
+
     try {
-      await Promise.all([
-        upsertProduct({ id: p.id, featured_order: swap.featured_order }),
-        upsertProduct({ id: swap.id, featured_order: p.featured_order }),
-      ]);
-      setProducts((prev) =>
-        prev.map((x) => {
-          if (x.id === p.id) return { ...x, featured_order: swap.featured_order };
-          if (x.id === swap.id) return { ...x, featured_order: p.featured_order };
-          return x;
-        }),
+      await Promise.all(
+        reordered.map((item) => upsertProduct({ id: item.id, featured_order: item.featured_order })),
       );
+      toast('Featured product order updated');
     } catch (err) {
       toast((err as Error).message, 'error');
     }

@@ -57,17 +57,29 @@ export default function AdminCategories() {
 
   async function move(c: Category, dir: -1 | 1) {
     const idx = categories.findIndex((x) => x.id === c.id);
-    const swap = categories[idx + dir];
-    if (!swap) return;
-    await Promise.all([
-      upsertCategory({ id: c.id, sort_order: swap.sort_order }),
-      upsertCategory({ id: swap.id, sort_order: c.sort_order }),
-    ]);
-    setCategories((prev) => prev.map((x) => {
-      if (x.id === c.id) return { ...x, sort_order: swap.sort_order };
-      if (x.id === swap.id) return { ...x, sort_order: c.sort_order };
-      return x;
+    const targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= categories.length) return;
+
+    const updated = [...categories];
+    const temp = updated[idx];
+    updated[idx] = updated[targetIdx];
+    updated[targetIdx] = temp;
+
+    const reordered = updated.map((item, i) => ({
+      ...item,
+      sort_order: i,
     }));
+
+    setCategories(reordered);
+
+    try {
+      await Promise.all(
+        reordered.map((item) => upsertCategory({ id: item.id, sort_order: item.sort_order })),
+      );
+      toast('Category order updated');
+    } catch (err) {
+      toast((err as Error).message, 'error');
+    }
   }
 
   async function toggleVisible(c: Category) {
