@@ -57,12 +57,18 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-ink-50">
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-ink-950/50 backdrop-blur-sm lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-ink-100 bg-white transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-72 flex-col border-r border-ink-100 bg-white transition-transform duration-300 lg:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-ink-100 px-5">
+        <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-ink-100 px-5">
           <div>
             <p className="font-serif text-base font-semibold text-ink-900">AMKAS Admin</p>
             <p className="text-xs text-ink-400">{settings?.company_name ?? 'AMKAS INTERNATIONAL'}</p>
@@ -71,7 +77,7 @@ export default function AdminLayout() {
             <X className="h-5 w-5 text-ink-500" />
           </button>
         </div>
-        <nav className="flex flex-col gap-0.5 overflow-y-auto p-3">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
           {NAV.map((n) => (
             <NavLink
               key={n.to}
@@ -88,7 +94,7 @@ export default function AdminLayout() {
             </NavLink>
           ))}
         </nav>
-        <div className="absolute inset-x-0 bottom-0 border-t border-ink-100 p-3">
+        <div className="flex-shrink-0 border-t border-ink-100 p-3 bg-white">
           <div className="mb-2 truncate px-2 text-xs text-ink-400">{session?.user?.email}</div>
           <button onClick={handleSignOut} className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50">
             <LogOut className="h-4.5 w-4.5" /> Sign out
@@ -104,7 +110,7 @@ export default function AdminLayout() {
           <p className="font-serif text-sm font-semibold">AMKAS Admin</p>
           <div className="w-5" />
         </header>
-        <main className="p-5 lg:p-8">
+        <main className="p-4 sm:p-6 lg:p-8">
           <Outlet context={{ settings }} />
         </main>
       </div>
