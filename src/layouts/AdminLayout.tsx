@@ -19,6 +19,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/lib/toast';
 import { fetchSiteSettings } from '@/lib/api';
+import { updateFavicon } from '@/lib/seo';
 import type { SiteSettings } from '@/types/database';
 
 const NAV = [
@@ -44,7 +45,12 @@ export default function AdminLayout() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetchSiteSettings().then(setSettings).catch(() => {});
+    fetchSiteSettings()
+      .then((s) => {
+        setSettings(s);
+        if (s?.favicon_url) updateFavicon(s.favicon_url);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => setOpen(false), [location.pathname]);

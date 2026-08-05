@@ -134,12 +134,17 @@ export async function fetchFeaturedProducts(): Promise<Product[]> {
 
 export async function upsertProduct(p: Partial<Product>): Promise<Product> {
   const { id, category, collection, ...rest } = p;
-  const payload = {
-    ...rest,
-    category_id: rest.category_id || null,
-    collection_id: rest.collection_id || null,
-    specs: rest.specs ?? {},
-  };
+  const payload: Record<string, any> = { ...rest };
+
+  if (p.category_id !== undefined) {
+    payload.category_id = p.category_id || null;
+  }
+  if (p.collection_id !== undefined) {
+    payload.collection_id = p.collection_id || null;
+  }
+  if (p.specs !== undefined) {
+    payload.specs = p.specs ?? {};
+  }
 
   if (id) {
     const { data, error } = await supabase

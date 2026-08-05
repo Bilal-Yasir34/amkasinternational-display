@@ -7,6 +7,7 @@ import ScrollToTopOnRouteChange from '@/components/ScrollToTopOnRouteChange';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import LoadingScreen from '@/components/LoadingScreen';
 import { fetchSiteSettings, fetchContactInfo } from '@/lib/api';
+import { updateFavicon } from '@/lib/seo';
 import type { SiteSettings, ContactInfo } from '@/types/database';
 
 export default function SiteLayout() {
@@ -19,6 +20,7 @@ export default function SiteLayout() {
       .then(([s, c]) => {
         setSettings(s);
         setContact(c);
+        if (s?.favicon_url) updateFavicon(s.favicon_url);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

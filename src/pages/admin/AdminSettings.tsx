@@ -3,6 +3,7 @@ import { AdminHeader, AdminCard, Field, SaveButton } from '@/components/admin/Ad
 import { fetchSiteSettings, updateSiteSettings } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { optimizeAndUpload } from '@/lib/image';
+import { updateFavicon } from '@/lib/seo';
 import type { SiteSettings } from '@/types/database';
 
 export default function AdminSettings() {
@@ -13,7 +14,12 @@ export default function AdminSettings() {
   const [uploadingFav, setUploadingFav] = useState(false);
 
   useEffect(() => {
-    fetchSiteSettings().then(setData).catch(() => toast('Failed to load', 'error'));
+    fetchSiteSettings()
+      .then((s) => {
+        setData(s);
+        if (s?.favicon_url) updateFavicon(s.favicon_url);
+      })
+      .catch(() => toast('Failed to load', 'error'));
   }, []);
 
   async function save(e: React.FormEvent) {
@@ -21,7 +27,8 @@ export default function AdminSettings() {
     if (!data) return;
     setSaving(true);
     try {
-      await updateSiteSettings(data);
+      const saved = await updateSiteSettings(data);
+      if (saved.favicon_url) updateFavicon(saved.favicon_url);
       toast('Settings saved');
     } catch (err) {
       toast((err as Error).message, 'error');
@@ -47,7 +54,8 @@ export default function AdminSettings() {
     try {
       const res = await optimizeAndUpload(file, 'branding');
       setData({ ...data, favicon_url: res.publicUrl } as SiteSettings);
-      toast('Favicon uploaded');
+      updateFavicon(res.publicUrl);
+      toast('Favicon uploaded. Click Save Settings to persist.');
     } catch (err) {
       toast((err as Error).message, 'error');
     } finally {

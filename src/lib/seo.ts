@@ -31,6 +31,13 @@ function setLink(rel: string, href?: string) {
   el.setAttribute('href', href);
 }
 
+export function updateFavicon(url?: string | null) {
+  if (!url) return;
+  setLink('icon', url);
+  setLink('shortcut icon', url);
+  setLink('apple-touch-icon', url);
+}
+
 export function useSeo(opts: SeoOptions) {
   useEffect(() => {
     if (opts.title) document.title = opts.title;
