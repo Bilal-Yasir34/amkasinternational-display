@@ -66,7 +66,7 @@ export default function ProductModal({ product, onClose }: { product: Product | 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
             transition={{ duration: 0.3 }}
-            className="relative z-10 max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white shadow-lift"
+            className="relative z-10 max-h-[90vh] w-full max-w-5xl min-w-0 overflow-y-auto overflow-x-hidden rounded-3xl bg-white shadow-lift"
             role="dialog"
             aria-modal="true"
             aria-label={product.name}
@@ -79,14 +79,16 @@ export default function ProductModal({ product, onClose }: { product: Product | 
               <X className="h-5 w-5" />
             </button>
 
-            <div className="grid lg:grid-cols-2">
-              <div className="relative bg-ink-50">
+            <div className="grid lg:grid-cols-2 min-w-0">
+              <div className="relative flex flex-col justify-center bg-ink-950/5 overflow-hidden max-h-[45vh] sm:max-h-[55vh] lg:max-h-full">
                 <SmartImage
                   src={product.images[active]}
                   alt={product.name}
                   ratio="1/1"
+                  fit="contain"
                   loading="eager"
                   sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="w-full h-full"
                 />
                 {product.images.length > 1 && (
                   <>
@@ -109,23 +111,23 @@ export default function ProductModal({ product, onClose }: { product: Product | 
                   </>
                 )}
                 {product.images.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto p-3 no-scrollbar">
+                  <div className="flex gap-2 overflow-x-auto p-3 no-scrollbar bg-white/40 backdrop-blur-xs">
                     {product.images.map((img, i) => (
                       <button
                         key={i}
                         onClick={() => setActive(i)}
-                        className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg ring-2 transition ${
+                        className={`h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-lg ring-2 transition bg-white ${
                           i === active ? 'ring-gold-500' : 'ring-transparent'
                         }`}
                       >
-                        <img src={img} alt="" className="h-full w-full object-cover" />
+                        <img src={img} alt="" className="h-full w-full object-contain" />
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-col p-6 sm:p-8">
+              <div className="flex flex-col min-w-0 p-6 sm:p-8">
                 <p className="eyebrow">{product.category?.name ?? 'Textile'}</p>
                 <h2 className="mt-2 font-serif text-2xl font-medium text-ink-900 sm:text-3xl">{product.name}</h2>
                 {product.collection && (

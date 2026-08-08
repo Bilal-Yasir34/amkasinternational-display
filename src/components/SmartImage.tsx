@@ -8,6 +8,7 @@ type SmartImageProps = {
   loading?: 'lazy' | 'eager';
   sizes?: string;
   ratio?: string;
+  fit?: 'cover' | 'contain';
 };
 
 export default function SmartImage({
@@ -17,6 +18,7 @@ export default function SmartImage({
   loading = 'lazy',
   sizes,
   ratio,
+  fit = 'cover',
 }: SmartImageProps) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -36,10 +38,11 @@ export default function SmartImage({
   }, [src]);
 
   const srcSet = responsiveSrcSet(src ?? '');
+  const fitClass = fit === 'contain' ? 'object-contain max-h-full max-w-full m-auto' : 'object-cover';
 
   return (
     <div
-      className={`relative overflow-hidden bg-ink-100 ${ratio ? '' : ''}`}
+      className={`relative overflow-hidden bg-ink-100/40 flex items-center justify-center ${ratio ? '' : ''}`}
       style={ratio ? { aspectRatio: ratio } : undefined}
     >
       {!loaded && !errored && <div className="absolute inset-0 skeleton" aria-hidden />}
@@ -59,7 +62,7 @@ export default function SmartImage({
           decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setErrored(true)}
-          className={`h-full w-full object-cover transition-opacity duration-500 ${
+          className={`h-full w-full ${fitClass} transition-opacity duration-500 ${
             loaded ? 'opacity-100' : 'opacity-0'
           } ${className}`}
         />

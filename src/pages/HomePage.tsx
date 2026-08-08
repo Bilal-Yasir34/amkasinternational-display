@@ -5,12 +5,14 @@ import WhoWeAre from '@/components/WhoWeAre';
 import FeaturedCarousel from '@/components/FeaturedCarousel';
 import CollectionsGrid from '@/components/CollectionsGrid';
 import WhyChooseUs from '@/components/WhyChooseUs';
+import CertificationsSection from '@/components/CertificationsSection';
 import CompanyInformation from '@/components/CompanyInformation';
 import ProductModal from '@/components/ProductModal';
 import {
   FeaturedCarouselSkeleton,
   CollectionsGridSkeleton,
   WhyChooseUsSkeleton,
+  CertificationsSkeleton,
   CompanyInfoSkeleton,
 } from '@/components/Skeletons';
 import { fetchHomepage, fetchFeaturedProducts, fetchCollections, fetchCompanyInfo } from '@/lib/api';
@@ -61,6 +63,7 @@ export default function HomePage() {
   const showFeatured = homepage ? homepage.show_featured : true;
   const showCollections = homepage ? homepage.show_collections : true;
   const showWhyChoose = homepage ? homepage.show_why_choose : true;
+  const showCertifications = homepage ? (homepage.show_certifications ?? true) : true;
   const showCompanyInfo = homepage ? homepage.show_company_info : true;
 
   return (
@@ -73,6 +76,7 @@ export default function HomePage() {
           <FeaturedCarouselSkeleton />
           <CollectionsGridSkeleton />
           <WhyChooseUsSkeleton />
+          <CertificationsSkeleton />
           <CompanyInfoSkeleton />
         </>
       ) : (
@@ -80,6 +84,7 @@ export default function HomePage() {
           {showFeatured && <FeaturedCarousel products={featured} onSelect={setSelected} />}
           {showCollections && <CollectionsGrid collections={collections} />}
           {showWhyChoose && <WhyChooseUs homepage={homepage} />}
+          {showCertifications && <CertificationsSection homepage={homepage} />}
           {showCompanyInfo && <CompanyInformation info={company} />}
         </>
       )}

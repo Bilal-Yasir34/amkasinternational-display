@@ -105,6 +105,31 @@ export function WhyChooseUsSkeleton() {
   );
 }
 
+export function CertificationsSkeleton() {
+  return (
+    <section className="bg-beige-50/50 py-20 lg:py-28">
+      <div className="container-px">
+        <div className="mx-auto mb-14 max-w-2xl text-center flex flex-col items-center">
+          <div className="skeleton mb-3 h-3 w-36 rounded" />
+          <div className="skeleton mb-4 h-8 w-64 sm:w-80 rounded-lg" />
+          <div className="skeleton h-4 w-full max-w-md rounded" />
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-3xl border border-ink-100 bg-white p-5">
+              <div className="skeleton aspect-[4/3] w-full rounded-2xl mb-4" />
+              <div className="skeleton mb-2 h-5 w-3/4 rounded" />
+              <div className="skeleton mb-2 h-4 w-1/2 rounded" />
+              <div className="skeleton h-3 w-full rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function CompanyInfoSkeleton() {
   return (
     <section className="py-20 lg:py-28">

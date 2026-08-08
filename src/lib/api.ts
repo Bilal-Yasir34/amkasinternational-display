@@ -209,9 +209,39 @@ const DEFAULT_HOMEPAGE: Homepage = {
     { title: 'Global Export Reach', description: 'Efficient logistics and customs clearance worldwide.', icon: 'Globe' },
     { title: 'Sustainable Craftsmanship', description: 'Eco-certified dyes and responsibly sourced natural fibers.', icon: 'Leaf' },
   ],
+  certifications: [
+    {
+      id: 'cert-1',
+      title: 'ISO 9001:2015 Quality Certification',
+      issuer: 'International Organization for Standardization',
+      issue_date: '2024',
+      badge: 'ISO Certified',
+      description: 'Certified Quality Management System for high-grade textile manufacturing and export operations.',
+      image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: 'cert-2',
+      title: 'OEKO-TEX Standard 100 Eco Safety',
+      issuer: 'International OEKO-TEX Association',
+      issue_date: '2024',
+      badge: 'Eco Safe',
+      description: 'Tested for harmful substances and verified for eco-friendly fabric production standards.',
+      image_url: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: 'cert-3',
+      title: 'Chamber of Commerce & Industry Export License',
+      issuer: 'Ministry of Commerce & Textile',
+      issue_date: '2023',
+      badge: 'Export License',
+      description: 'Official corporate registration and authorization for global textile exporting and trade.',
+      image_url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
+    },
+  ],
   show_featured: true,
   show_collections: true,
   show_why_choose: true,
+  show_certifications: true,
   show_company_info: true,
   updated_at: new Date().toISOString(),
 };
@@ -274,7 +304,15 @@ export async function updateSiteSettings(patch: Partial<SiteSettings>): Promise<
 export async function fetchHomepage(): Promise<Homepage> {
   const { data, error } = await supabase.from('homepage').select('*').eq('id', 1).maybeSingle();
   if (error) throw error;
-  return data ?? DEFAULT_HOMEPAGE;
+  if (!data) return DEFAULT_HOMEPAGE;
+  return {
+    ...DEFAULT_HOMEPAGE,
+    ...data,
+    certifications: (data.certifications && Array.isArray(data.certifications) && data.certifications.length > 0)
+      ? data.certifications
+      : DEFAULT_HOMEPAGE.certifications,
+    show_certifications: data.show_certifications ?? true,
+  };
 }
 
 export async function updateHomepage(patch: Partial<Homepage>): Promise<Homepage> {

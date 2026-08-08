@@ -3,13 +3,14 @@ import { AdminHeader, AdminCard, Field, SaveButton } from '@/components/admin/Ad
 import { fetchHomepage, updateHomepage } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { optimizeAndUpload } from '@/lib/image';
-import type { Homepage, WhyChooseItem } from '@/types/database';
+import type { Homepage, WhyChooseItem, CertificationItem } from '@/types/database';
 
 export default function AdminHomepage() {
   const toast = useToast();
   const [data, setData] = useState<Homepage | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingCertIndex, setUploadingCertIndex] = useState<number | null>(null);
 
   useEffect(() => {
     fetchHomepage().then(setData).catch(() => toast('Failed to load homepage', 'error'));
@@ -55,6 +56,44 @@ export default function AdminHomepage() {
   function removeWhy(index: number) {
     if (!data) return;
     setData({ ...data, why_choose_us: data.why_choose_us.filter((_, i) => i !== index) });
+  }
+
+  function updateCert(index: number, patch: Partial<CertificationItem>) {
+    if (!data) return;
+    const certs = [...(data.certifications ?? [])];
+    certs[index] = { ...certs[index], ...patch };
+    setData({ ...data, certifications: certs });
+  }
+  function addCert() {
+    if (!data) return;
+    const certs = data.certifications ?? [];
+    const newCert: CertificationItem = {
+      id: `cert-${Date.now()}`,
+      title: '',
+      issuer: '',
+      issue_date: new Date().getFullYear().toString(),
+      badge: 'Certified',
+      description: '',
+      image_url: '',
+    };
+    setData({ ...data, certifications: [...certs, newCert] });
+  }
+  function removeCert(index: number) {
+    if (!data) return;
+    const certs = (data.certifications ?? []).filter((_, i) => i !== index);
+    setData({ ...data, certifications: certs });
+  }
+  async function handleCertImageUpload(index: number, file: File) {
+    setUploadingCertIndex(index);
+    try {
+      const res = await optimizeAndUpload(file, 'certifications');
+      updateCert(index, { image_url: res.publicUrl });
+      toast('Certificate image uploaded');
+    } catch (err) {
+      toast((err as Error).message, 'error');
+    } finally {
+      setUploadingCertIndex(null);
+    }
   }
 
   if (!data) return <div className="skeleton h-96 rounded-3xl" />;
@@ -163,16 +202,143 @@ export default function AdminHomepage() {
         </AdminCard>
 
         <AdminCard>
+          <div className="mb-4 flex items-center justify-between border-b border-ink-100 pb-3">
+            <div>
+              <h2 className="font-serif text-lg font-medium text-ink-900">Company Certifications & Accreditation Proofs</h2>
+              <p className="text-xs text-ink-500">Upload official company certificates, ISO badges, export licenses, or quality proof images displayed below "Why Choose Us".</p>
+            </div>
+            <button type="button" onClick={addCert} className="btn-outline">
+              + Add Certificate
+            </button>
+          </div>
+
+          {(data.certifications ?? []).length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-ink-200 p-8 text-center text-sm text-ink-500">
+              No certifications uploaded yet. Click "+ Add Certificate" to upload company proof documents.
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {(data.certifications ?? []).map((cert, i) => (
+                <div key={cert.id || i} className="relative rounded-2xl border border-ink-200 bg-ink-50/50 p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-gold-700">
+                      Certificate #{i + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeCert(i)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-100/50"
+                      aria-label="Remove certificate"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-12">
+                    {/* Image Upload & Preview Box */}
+                    <div className="sm:col-span-4">
+                      <label className="label">Certificate Photo / Document</label>
+                      <div className="relative mb-2 h-36 w-full overflow-hidden rounded-xl border border-ink-200 bg-white p-2">
+                        {cert.image_url ? (
+                          <img src={cert.image_url} alt={cert.title} className="h-full w-full object-contain" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xs text-ink-400">
+                            No document uploaded
+                          </div>
+                        )}
+                      </div>
+                      <label className="flex h-9 w-full cursor-pointer items-center justify-center rounded-lg bg-white border border-ink-200 text-xs font-medium text-ink-800 shadow-sm transition hover:bg-ink-50">
+                        {uploadingCertIndex === i ? 'Uploading...' : '📷 Select File'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => e.target.files?.[0] && handleCertImageUpload(i, e.target.files[0])}
+                        />
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="Or direct image URL"
+                        value={cert.image_url}
+                        onChange={(e) => updateCert(i, { image_url: e.target.value })}
+                        className="input mt-2 text-xs bg-white"
+                      />
+                    </div>
+
+                    {/* Certificate Form Inputs */}
+                    <div className="sm:col-span-8 space-y-3">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field label="Certificate Title">
+                          <input
+                            value={cert.title}
+                            onChange={(e) => updateCert(i, { title: e.target.value })}
+                            placeholder="e.g. ISO 9001:2015 Certification"
+                            className="input bg-white"
+                          />
+                        </Field>
+                        <Field label="Badge Tag">
+                          <input
+                            value={cert.badge ?? ''}
+                            onChange={(e) => updateCert(i, { badge: e.target.value })}
+                            placeholder="e.g. ISO Certified"
+                            className="input bg-white"
+                          />
+                        </Field>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field label="Issuing Authority">
+                          <input
+                            value={cert.issuer ?? ''}
+                            onChange={(e) => updateCert(i, { issuer: e.target.value })}
+                            placeholder="e.g. International ISO Authority"
+                            className="input bg-white"
+                          />
+                        </Field>
+                        <Field label="Year / Issue Date">
+                          <input
+                            value={cert.issue_date ?? ''}
+                            onChange={(e) => updateCert(i, { issue_date: e.target.value })}
+                            placeholder="e.g. 2024"
+                            className="input bg-white"
+                          />
+                        </Field>
+                      </div>
+
+                      <Field label="Description">
+                        <textarea
+                          rows={2}
+                          value={cert.description ?? ''}
+                          onChange={(e) => updateCert(i, { description: e.target.value })}
+                          placeholder="Brief description of accreditation..."
+                          className="input bg-white resize-none"
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </AdminCard>
+
+        <AdminCard>
           <h2 className="mb-4 font-serif text-lg font-medium text-ink-900">Section Visibility</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {([
+            {[
               ['show_featured', 'Featured Products'],
               ['show_collections', 'Collections'],
               ['show_why_choose', 'Why Choose Us'],
+              ['show_certifications', 'Certifications & Proofs'],
               ['show_company_info', 'Company Information'],
-            ] as const).map(([key, label]) => (
+            ].map(([key, label]) => (
               <label key={key} className="flex items-center gap-2 rounded-xl border border-ink-100 px-4 py-3 text-sm text-ink-700">
-                <input type="checkbox" checked={data[key] as boolean} onChange={(e) => setData({ ...data, [key]: e.target.checked })} className="h-4 w-4 rounded border-ink-300" />
+                <input
+                  type="checkbox"
+                  checked={(data[key as keyof Homepage] as boolean) ?? true}
+                  onChange={(e) => setData({ ...data, [key]: e.target.checked })}
+                  className="h-4 w-4 rounded border-ink-300"
+                />
                 {label}
               </label>
             ))}

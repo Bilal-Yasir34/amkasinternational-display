@@ -49,6 +49,16 @@ export type WhyChooseItem = {
   icon: string;
 };
 
+export type CertificationItem = {
+  id: string;
+  title: string;
+  issuer?: string;
+  issue_date?: string;
+  description?: string;
+  image_url: string;
+  badge?: string;
+};
+
 export type SiteSettings = {
   id: number;
   company_name: string;
@@ -83,9 +93,11 @@ export type Homepage = {
   years_experience: number;
   export_markets: string | null;
   why_choose_us: WhyChooseItem[];
+  certifications?: CertificationItem[];
   show_featured: boolean;
   show_collections: boolean;
   show_why_choose: boolean;
+  show_certifications?: boolean;
   show_company_info: boolean;
   updated_at: string;
 };
