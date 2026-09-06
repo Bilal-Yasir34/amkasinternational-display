@@ -26,7 +26,7 @@ export default function CertificationsSection({ homepage }: { homepage: Homepage
             Accreditation & Compliance
           </div>
           <h2 className="mt-4 font-serif text-3xl font-medium tracking-tight text-ink-950 sm:text-4xl lg:text-5xl">
-            Company Certifications & Proofs
+            Company Certifications
           </h2>
           <p className="mt-4 text-base leading-relaxed text-ink-600 sm:text-lg">
             Our commitment to quality, sustainability, and international standards is backed by verified export accreditations and safety certifications.
@@ -53,7 +53,7 @@ export default function CertificationsSection({ homepage }: { homepage: Homepage
                   fit="contain"
                   className="rounded-xl transition-transform duration-500 group-hover:scale-105"
                 />
-                
+
                 {/* Hover overlay with zoom hint */}
                 <div className="absolute inset-0 flex items-center justify-center bg-ink-950/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold text-ink-900 shadow-lift backdrop-blur">
@@ -74,7 +74,7 @@ export default function CertificationsSection({ homepage }: { homepage: Homepage
                   <h3 className="font-serif text-xl font-medium text-ink-900 transition-colors group-hover:text-gold-700">
                     {cert.title}
                   </h3>
-                  
+
                   {cert.issuer && (
                     <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-ink-500">
                       <Building2 className="h-3.5 w-3.5 text-gold-600 flex-shrink-0" />
@@ -124,7 +124,7 @@ export default function CertificationsSection({ homepage }: { homepage: Homepage
               onClick={() => setSelectedCert(null)}
               aria-hidden
             />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
