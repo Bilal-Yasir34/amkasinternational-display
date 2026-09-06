@@ -26,7 +26,7 @@ export default function CertificationsSection({ homepage }: { homepage: Homepage
             Accreditation & Compliance
           </div>
           <h2 className="mt-4 font-serif text-3xl font-medium tracking-tight text-ink-950 sm:text-4xl lg:text-5xl">
-            Company Certifications
+            Company & Product Certifications
           </h2>
           <p className="mt-4 text-base leading-relaxed text-ink-600 sm:text-lg">
             Our commitment to quality, sustainability, and international standards is backed by verified export accreditations and safety certifications.
