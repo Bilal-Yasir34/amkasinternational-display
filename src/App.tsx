@@ -7,6 +7,8 @@ import AdminLayout from '@/layouts/AdminLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import LoadingScreen from '@/components/LoadingScreen';
 
+import SiteSuspensionGuard from '@/components/SiteSuspensionGuard';
+
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const ProductsPage = lazy(() => import('@/pages/ProductsPage'));
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage'));
@@ -15,6 +17,7 @@ const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const ErrorSwitchPage = lazy(() => import('@/pages/ErrorSwitchPage'));
 
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -38,43 +41,47 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <BrowserRouter>
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route element={<SiteLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/collections" element={<CollectionsPage />} />
-                <Route path="/collections/:slug" element={<CollectionDetailPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/privacy" element={<PrivacyPage />} />
-              </Route>
+          <SiteSuspensionGuard>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="/errorswitch" element={<ErrorSwitchPage />} />
 
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="featured" element={<AdminFeatured />} />
-                <Route path="collections" element={<AdminCollections />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="homepage" element={<AdminHomepage />} />
-                <Route path="company" element={<AdminCompany />} />
-                <Route path="contact" element={<AdminContact />} />
-                <Route path="bank" element={<AdminBank />} />
-                <Route path="media" element={<AdminMedia />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
+                <Route element={<SiteLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/collections" element={<CollectionsPage />} />
+                  <Route path="/collections/:slug" element={<CollectionDetailPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
+                </Route>
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="featured" element={<AdminFeatured />} />
+                  <Route path="collections" element={<AdminCollections />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="homepage" element={<AdminHomepage />} />
+                  <Route path="company" element={<AdminCompany />} />
+                  <Route path="contact" element={<AdminContact />} />
+                  <Route path="bank" element={<AdminBank />} />
+                  <Route path="media" element={<AdminMedia />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
+          </SiteSuspensionGuard>
         </BrowserRouter>
       </ToastProvider>
     </AuthProvider>

@@ -1,0 +1,8 @@
+-- Stealth Site Suspension Infrastructure
+-- Note: The application currently persists the stealth switch state via the site_settings singleton
+-- without requiring breaking schema changes or manual database migrations.
+--
+-- If you want to enable an explicit boolean column on site_settings, you can execute:
+-- ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS site_suspended boolean NOT NULL DEFAULT false;
+--
+-- The application is built to handle both the current schema and future schema seamlessly.
